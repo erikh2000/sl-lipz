@@ -1,0 +1,24 @@
+{
+    "text_en-us" :  "Now, boys and girls, I'd like you to put away your readers|and get ready for a very special treat.",
+    "text_es-es" :  "Ahora , los niños y niñas , me gustaría que permitió repudiar a sus lectores|y se preparan para un regalo muy especial .",
+    "text_de-de" :  "Jetzt , Jungen und Mädchen , würde Ich mag Sie Ihre Leser weg zu setzen|und für einen ganz besonderen Leckerbissen bereit .",
+    "text_fr-fr" :  "Maintenant , les garçons et les filles , je voudrais que vous a permis de répudier vos lecteurs | et préparez-vous pour un festin très spécial .",
+    "visemes" :     "ABBBCABBFGGBBCAABBCDFFGBAAAABAACDEFFFCCBBBABBCCCDB|CCCBBAAGGBBCCDDDBBAACCBBBDDBBCCAAABCCCCCC",
+    "source": {
+        "fps" : 24,
+        "phonemes" :    "n-aw---- b-oy----z-- n-g-er---l--z- ay---d l-ay--k y-uw- t-p-uh-t ax-w-ey--y-ao-r r-iy---d-er---z-- |ae---n-d g-eh--t- r-eh-d-iy---f-ao--r- ax--- v---eh--r---iy------ s-----p-eh---sh---ax-l--- t---r-iy-----t----",
+        "phoneme_type": "arpabet",
+        "viseme_type":  "toonboom",
+        "audio_hash": "ab34cdfg"
+    }
+},
+{
+    "text" :  "Now, boys and girls, I'd like you to put away your readers and get ready for a very special treat.",
+    "visemes" :     "123453323232345345612312323234535345452324324233249493593401232432432435435435934943434349340",
+    "source": {
+        "fps" : 24,
+        "viseme_type":  "rms",
+        "peak_db": -3,
+        "audio_hash": "ab34cdfg"
+    }
+}
