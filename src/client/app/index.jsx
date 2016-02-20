@@ -4,6 +4,7 @@ import Wave from './Wave.js';
 import WaveSelector from './WaveSelector.jsx';
 import PhonemeEditor from './PhonemeEditor.jsx';
 import MouthBox from './MouthBox.jsx';
+import VisemeBox from './VisemeBox.jsx';
 
 class App extends React.Component {
     constructor(props) {
@@ -11,9 +12,11 @@ class App extends React.Component {
         var wave = new Wave(24, .1);
         this.state= {
             wave: wave,
-            viseme: null
+            viseme: null,
+            phonemes: ""
         };
         this.onSetViseme = this.onSetViseme.bind(this);
+        this.onSetPhonemes = this.onSetPhonemes.bind(this);
     }
   
     render () {
@@ -21,7 +24,8 @@ class App extends React.Component {
             <div>
                 <WaveSelector wave={this.state.wave} />
                 <MouthBox viseme={this.state.viseme} />
-                <PhonemeEditor wave={this.state.wave} onSetViseme={this.onSetViseme} />
+                <PhonemeEditor wave={this.state.wave} onSetViseme={this.onSetViseme} onSetPhonemes={this.onSetPhonemes} />
+                <VisemeBox wave={this.state.wave} phonemes={this.state.phonemes} onSetViseme={this.onSetViseme} />
             </div>
         );
     }
@@ -29,6 +33,12 @@ class App extends React.Component {
     onSetViseme(viseme) {
         this.setState({
             viseme: viseme
+        });
+    }
+    
+    onSetPhonemes(phonemes) {
+        this.setState({
+            phonemes: phonemes
         });
     }
 }
