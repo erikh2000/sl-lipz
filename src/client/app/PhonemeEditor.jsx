@@ -1,6 +1,6 @@
 import React from 'react';
 import Rita from '../../libs/rita-full.js';
-import ArpabetToToonBoom from './ArpabetToToonBoom.js';
+import VisemeUtil from './VisemeUtil.js';
 
 class PhonemeEditor extends React.Component {
     
@@ -17,46 +17,21 @@ class PhonemeEditor extends React.Component {
         this._onPhonemesFocus = this._onPhonemesFocus.bind(this);
         this._onPhonemesBlur = this._onPhonemesBlur.bind(this);
         this._onTextChange = this._onTextChange.bind(this);
-        this._onPreviewClick = this._onPreviewClick.bind(this);
-        this._visemeMap = new ArpabetToToonBoom();
+        this.visemeUtil = new VisemeUtil();
     }
 
     render() {
         return (
-            <div className="phonemeEditor">
-                <div className="buttonBar">
-                    <button id="previewButton" onClick={ this._onPreviewClick }>Preview</button>
-                </div>
-                <label htmlFor="text">Text:</label>
+            <div className="phonemeEditor formGroup">
+                <label className="leftLabel" htmlFor="text">Text:</label>
                 <input className="textBox" type="text" value={ this.state.text } id="text" onChange={ this._onTextChange } /><br />
-                <label htmlFor="phonemes">Phonemes:</label>
+                <label className="leftLabel" htmlFor="phonemes">Phonemes:</label>
                 <textarea className="phonemeBox" rows="10" cols="100" autoComplete="off" autoCorrect="off" autoCapitalize="off" 
 spellCheck="false" value={ this.state.phonemes } id="phonemes" 
                     onChange={ this._onPhonemesChange } onKeyUp={ this._onPhonemesKeyDown } onMouseUp={ this._onPhonemesMouseUp } 
                     onFocus={ this._onPhonemesFocus } onBlur={ this.onPhonemesBlue } />
             </div>
         );
-    }
-    
-    _onPreviewClick() {
-        var that = this,
-            frameToVisemeMap = this._createFrameToVisemeMap(this.state.phonemes);
-        
-        this.props.wave.play();
-        
-        function onUpdateMouth() {
-            var frameNo = that.props.wave.getPlayFrameNo(), viseme;
-            if (frameNo < frameToVisemeMap.length) {
-                viseme = frameToVisemeMap[frameNo];
-            } else {
-                viseme = null;
-            }
-            that.props.onSetViseme(viseme);
-            if (that.props.wave.getIsPlaying()) {
-                setTimeout(onUpdateMouth, 10);
-            }
-        }
-        setTimeout(onUpdateMouth, 10);
     }
     
     _onTextChange(event) {
@@ -67,12 +42,16 @@ spellCheck="false" value={ this.state.phonemes } id="phonemes"
             text: event.target.value,
             phonemes: phonemes
         });
+        
+        this.props.onSetPhonemes(phonemes);
     }
     
     _onPhonemesChange(event) {
+        var newValue = event.target.value.toLowerCase();
         this.setState({
-			phonemes: event.target.value.toLowerCase()
+			phonemes: newValue
 		});
+        this.props.onSetPhonemes(phonemes);
         this._setFrameOnCursor(event.target);
     }
     
@@ -98,15 +77,16 @@ spellCheck="false" value={ this.state.phonemes } id="phonemes"
         var newCursorPos = this._getCaretPosition(el);
         if (newCursorPos === this.state.cursorPos) {
         } else {
-            var frameNo = this._getFrameNoForCursorPosition(this.state.phonemes, newCursorPos), phoneme, viseme;
+            var frameNo = this._getFrameNoForCursorPosition(this.state.phonemes, newCursorPos), phoneme, viseme, frameRms = null;
             if (frameNo < this.props.wave.getFrameCount() - 1) {
+                frameRms = this.props.wave.getFrameRms(frameNo);
                 this.props.wave.playFrame(frameNo);
             }
             this.setState({
                 cursorPos: newCursorPos
             });
             phoneme = this._getPhonemeAtPos(this.state.phonemes, newCursorPos);
-            viseme = this._visemeMap.getViseme(phoneme);
+            viseme = this.visemeUtil.getFrameViseme('toonboom', frameRms, phoneme); //TODO--get viseme type and pass in 1st param.
             this.props.onSetViseme(viseme);
         }
     }
@@ -177,55 +157,6 @@ spellCheck="false" value={ this.state.phonemes } id="phonemes"
         }
         
         return str.substr(left, right-left);
-    }
-    
-    _createFrameToVisemeMap(str) {
-        var pos, frameNo = -1, inPhoneme = false, phoneme, viseme, char, ret = [], isQuietFrame;
-        
-        //Scan from beginning of phoneme string, tracking frames and
-        //parsing phonemes. For each frame, put the current viseme.
-        for (pos = 0; pos < str.length - 1; ++pos) {
-            char = str.charAt(pos);
-            isQuietFrame = (this.props.wave.getFrameRms(ret.length) < .1);
-            
-            if (inPhoneme) {
-                if (this._isLetter(char)) {
-                    phoneme += char;
-                } else {
-                    inPhoneme = false;
-                    if (isQuietFrame) {
-                        console.log("Quiet at frame #" + ret.length);
-                        viseme = null; //Closed mouth.
-                    } else {
-                        viseme = this._visemeMap.getViseme(phoneme);
-                    }
-                    ret.push(viseme);
-                }
-            } else {
-                if (this._isLetter(char)) {
-                    phoneme = char;
-                    inPhoneme = true;
-                } else {
-                    if (isQuietFrame) {
-                        console.log("Quiet at frame #" + ret.length);
-                        viseme = null; //Closed mouth.
-                    }
-                    ret.push(viseme);
-                }
-            }
-        }
-        
-        //If still in phoneme at the end, add one more frame because there is no non-phoneme character
-        //to delimit.
-        if (inPhoneme) {
-            viseme = this._visemeMap.getViseme(phoneme);
-            ret.push(viseme);
-        }
-        
-        //End on closed mouth.
-        ret.push(null);
-        
-        return ret;
     }
     
     _isLetter(str) {
