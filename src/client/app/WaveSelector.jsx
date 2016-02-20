@@ -24,8 +24,8 @@ class WaveSelector extends React.Component {
     
     renderLoaded() {
       return (
-          <div className="waveSelector">
-            <p>File: { this.state.fileName }</p>
+          <div className="waveSelector formGroup">
+            <p className="audioFileLabel">Audio File: { this.state.fileName }</p>
             <button id="changeFile" onClick={ this.onChangeFile }>Change File</button>
           </div>
       );  
@@ -33,7 +33,8 @@ class WaveSelector extends React.Component {
     
     renderNotLoaded() {
       return (
-          <div className="waveSelector">
+          <div className="waveSelector formGroup">
+                <p className="audioFileLabel">Audio File:</p>
                 <input type="file" id="waveFile" size="50" onChange={ this.onFilenameChange } />
           </div>
       );  
