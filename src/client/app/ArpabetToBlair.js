@@ -1,7 +1,7 @@
 class ArpabetToBlair {
     constructor() {
         this._map = {
-            '-'     : 'a',
+            '-'     : '-',
             'aa'    : 'c',
             'ae'    : 'c',
             'ah'    : 'c',
@@ -55,7 +55,7 @@ class ArpabetToBlair {
         var ret = this._map[phoneme];
         if (!ret) {
             console.error("No viseme found for \"" + phoneme + "\" phoneme.");
-            return 'a';
+            return '-';
         } else {
             return ret;
         }

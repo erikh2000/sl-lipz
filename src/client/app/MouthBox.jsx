@@ -16,7 +16,7 @@ class MouthBox extends React.Component {
     }
     
     _getVisemeClass(viseme) {
-    if (!viseme || "" === viseme) {
+    if (!viseme || "" === viseme || "-" === viseme) {
         return "viseme-default"
     } else {
         return "viseme-" + viseme.trim();
