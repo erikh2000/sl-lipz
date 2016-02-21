@@ -2,7 +2,7 @@
 By Erik Hermansen
 ## Overview
 
-The Lipz file format is a simple description of lip animation and subtitles corresponding to an audio file for use in games and other software that performs character animation.
+The Lipz file format is a simple description of lip animation and subtitles corresponding to an audio file for use in games and other software that performs character animation. The format has the assumption that the game will be responsible in choosing assets and how to animate, and concerns itself with providing just enough information as to be useful for the game.
 
 Here's a quick example of a Lipz file to give you the gist:
 
@@ -34,7 +34,8 @@ The `visemes` element contains codes that indicate specific visemes (lip frames)
 
 ### Non-Goals
 
-* *Does not* contain settings and information used by animation authoring or generation tools.
+* *Does not* contain information about specific art assets used for animation.
+* *Does not* contain settings and information used by animation authoring or rendering tools.
 * *Does not* store motion-capture or facial position information.
 * *Does not* define animation beyond events triggered by character speech.
 
@@ -50,7 +51,7 @@ Visemes (often mistakenly described as "phonemes") are the visual expression cor
 
 In this version of the Lipz format, three viseme types are defined:
 
-* **Blair** - The classic 9-viseme mouth chart from Disney animator Preston Blair.
+* **Blair** - The classic 9-viseme (+1 for default/resting) mouth chart from Disney animator Preston Blair.
 * **Toon Boom** - This viseme type is based on the Toon Boom software's popular 7-viseme mouth chart. It's essentially the same as Preston Blair's mouth chart, but separate "L" and "U" visemes aren't included.
 * **RMS** - This viseme type represents an amplitude average (RMS) for each frame of animation. If the audio is louder, the mouth will be open wider. If the audio is silent or below a certain threshold, the mouth will be closed.
 
@@ -69,13 +70,14 @@ Code | Example Image | Description     | Code | Example Image | Description
 <div style="page-break-after: always;"></div>
 #### Blair Viseme Codes
 
-Code | Example Image | Description    | Code | Example Image | Description
----- | ------------- | -------------- | ---- | ------------- | -----------
-`-`  | ![-](a.png)   | Resting        | `C`  | ![B](b.png)   | Most consonants
-`A`  | ![D](d.png)   | A and I        | `W`  | ![F](f.png)   | W and Q
-`E`  | ![C](c.png)   | E              | `M`  | ![A](a.png)   | M, B, and P
-`O`  | ![E](e.png)   | O              | `L`  |               | L
-`U`  |               | U              | `F`  | ![G](g.png)   | F and V
+Code | Example Image | Description     | Code | Example Image | Description
+---- | ------------- | --------------- | ---- | ------------- | -----------
+`-`  | ![-](a.png)   | Resting         | `D`  | ![D](d.png)   | A and I
+`A`  | ![A](a.png)   | M, B, and P     | `E`  | ![E](e.png)   | O
+`B`  | ![B](b.png)   | Most consonants | `F`  | ![F](f.png)   | W and Q
+`C`  | ![C](c.png)   | E               | `G`  | ![G](g.png)   | F and V
+`L`  | ![L](l.png)   | L               | `U`  | ![U](u.png)   | U
+
 
 <div style="page-break-after: always;"></div>
 #### RMS Viseme Codes
@@ -101,7 +103,8 @@ Element         | Type                       | Constraints        | Description
 `text_`*ll*`-`*cc*  | *string* | Segment delimiter count must match `visemes`. | Dialogue text that corresponds to audio with the additional specification of a language locale.  This form is used when the Lipz file contains text for more than one language. The language locale consists of a lower-case, 2-character, ISO 639-1 language code followed by a hyphen (`-`) followed by a lower-case, 2-character, ISO 3166-1 country code. Example: `text_es-mx` (Mexican Spanish). Text may be segmented with use of the `|` character (see more about this in "Segmenting" section). Custom meta-information not intended for display can be stored with the text inside of curly braces (`{` and `}`).
 `visemes`         | *string* | Constrained according to `viseme_type`. | Each character represents the viseme for one frame of animation. The exception is the `|` character which delineates segments, and does not count for a frame.
 `viseme_type`     | *string* | "blair", "toonboom", or "rms" | The type of viseme encoding used by the `visemes` element. If unspecified, the value is supplied externally, e.g. a known constant value in game code or a general settings file.
-`events`     | *string* | Segment delimiter count must match `visemes`. | Events that can be correlated to segments to trigger emotions, gestures, and other animations that should be synchronized with audio. 
+`events`     | *string* | Segment delimiter count must match `visemes`. | Events that can be correlated to segments to trigger emotions, gestures, and other animations that should be synchronized with audio. The syntax of the events is arbitrary and determined by what the game wishes to support, but this document offers the "Character Event Syntax" as a suggested starting point.
+`character` | *string* | Should match against list of characters in use by game | Character ID that game may use to identify in-game character associated with the Lipz file. If not specified, then game presumably has some other means of associated Lipz files to characters.
 
 ## Segmenting
 
@@ -119,12 +122,12 @@ Segments are always delineated with the `|` character. When used within the `vis
 }
 ``` 
 
-If text is specified that also contains segmenting characters (`|`) then the segments defined in the text should be interpreted as corresponding to the segments defined in the viseme. This also implies timing values from the visemes correspond to the text. In the example below, the game code that loads the Lipz file will know that the "It was you!" text begins on the 20th frame.
+If text is specified that also contains segmenting characters (`|`) then the segments defined in the text should be interpreted as corresponding to the segments defined in the viseme. This also implies timing values from the visemes correspond to the text. In the example below, the game code that loads the Lipz file will know that the "It was you!" text begins on the 20th frame. The convention of stripping leading and trailing white space from segments of the `text` element before displaying allows the Lipz file to visually align segments of `text` element inside the Lipz file for easier editing.
 
 ```json
 {
 	"visemes" : "125643356734563-----|9723399421---",
-	"text" :    "Let me think...|It was you!"
+	"text" :    "Let me think...     |It was you!"
 }
 ``` 
 
@@ -135,8 +138,8 @@ Adding to this example, it would be extra-dramatic to have the character point a
 ```json
 {
 	"visemes" : "125643356734563-----|9723399421---",
-	"text" :     "Let me think...|It was you!",
-	"events" :	"|points butler"
+	"text" :    "Let me think...     |It was you!",
+	"events" :  "                    |points butler"
 }
 ```
 
@@ -147,8 +150,8 @@ If the game implements a scripting container, you might alternatively include sc
 ```json
 {
 	"visemes" : "125643356734563-----|9723399421---",
-	"text" :     "Let me think...|It was you!",
-	"events" :	"|pointAt(butler)"
+	"text" :    "Let me think...     |It was you!",
+	"events" :  "                    |pointAt(butler)"
 }
 ```
 
@@ -177,15 +180,15 @@ function getCurrentViseme(
 
 ## Character Event Syntax
 
-A game engine may optionally implement support for some or all of the character events described in this section. Character events are passed to the game via the `events` element. The events that are defined here are focused on kinds of animation that should happen with timing that is synchronized to audio.
+A game may optionally implement support for some or all of the character events described in this section. Character events are passed to the game via the `events` element. The events that are defined here are focused on kinds of animation that should happen with timing that is synchronized to audio.
 
 In the example below, a speaking character begins feeling sad, then his mood changes to irritated, and he finishes with a glance to another character he is speaking with. Each character event is specified at the beginning of a segment in the `text` element, and the timing of the segments is defined by the segment delimiters found in the `visemes` element.
 
 ```json
 {
 	"visemes" : "COOMCAAMCAAACECLOOLEE--|COOCECCOCOOCEEC-------|COOCOOOOO--",
-	"text" :    "Sometimes I get lonely.|Nothing to do here,|you know?",
-	"events" :  "feels sad|feels irritated|sees amy",
+	"text" :    "Sometimes I get lonely.|Nothing to do here,   |you know?",
+	"events" :  "feels sad              |feels irritated       |sees amy",
 }
 ```
 
@@ -196,8 +199,8 @@ Often, it is another character besides the currently speaking one that reacts to
 ```json
 {
 	"visemes" : "ACAWAACACAAACCC--------------|AAMEEEEEE----",
-	"text" :    "And the winner is...|Amy!",
-	"events" :  "amy feels nervous|amy feels happy"
+	"text" :    "And the winner is...         |Amy!",
+	"events" :  "amy feels nervous            |amy feels happy"
 }
 ```
 
@@ -206,8 +209,8 @@ We may wish to specify multiple events occuring in one segment. This can be done
 ```json
 {
 	"visemes" : "ACAWAACACAAACCC--------------|AAMEEEEEE----",
-	"text" :     "And the winner is...|Amy!",
-	"events" :   "amy feels nervous,rob feels nervous|amy feels happy,rob feels happy"
+	"text" :    "And the winner is...         |Amy!",
+	"events" :  "amy feels nervous,rob feels nervous|amy feels happy,rob feels happy"
 }
 ```
 
@@ -220,8 +223,8 @@ Syntax: [ **character** ] feels **emotion**
 
 variable     | description
 -------------|------------
-character    | ID of a character in the scene.
-emotion      | ID of an engine-defined emotion, e.g. "happy". See "Emotions".
+character    | ID of a character in the scene. If omitted, the character for which the Lipz file is playing should be used.
+emotion      | ID of an emotion for character to express. See "Emotions".
 
 #### Emotions
 
@@ -241,27 +244,25 @@ evil             | malicious glee
 
 ### "Sees" Command
 
-Character will look at a prop or another character for at least a moment. Engine should be implemented to have characters automatically look at interesting things like people talking. This command will override the default target of attention temporarily.
+Character will look at a prop or another character for at least a moment. Game should be implemented to have characters automatically look at interesting things like people talking. This command will override the default target of attention temporarily.
 
 Syntax: [ **character** ] sees { **prop** | **target-character** }
 
 variable         | description
 -----------------|------------
-time             | See "Time Format" section.
-character        | ID of a character in the scene.
+character        | ID of a character in the scene.  If omitted, the character for which the Lipz file is playing should be used.
 prop             | ID of a prop in the scene.
 target-character | ID of a character in the scene.
 
 ### "Stares" Command
 
-Character will look at a prop or another character and continue to look. Engine should be implemented to have characters automatically look at interesting things like people talking. This command will override the default target of attention until the "stop staring" command is given.
+Character will look at a prop or another character and continue to look. Game should be implemented to have characters automatically look at interesting things like people talking. This command will override the default target of attention until the "stop staring" command is given.
 
 Syntax: [ **character** ] stares { **prop** | **target-character** }
 
 variable         | description
 -----------------|------------
-time             | See "Time Format" section.
-character        | ID of a character in the scene.
+character        | ID of a character in the scene.  If omitted, the character for which the Lipz file is playing should be used.
 prop             | ID of a prop in the scene.
 target-character | ID of a character in the scene.
 
@@ -273,19 +274,29 @@ Syntax: [ **character** ] stops staring
 
 variable         | description
 -----------------|------------
-time             | See "Time Format" section.
-character        | ID of a character in the scene.
+character        | ID of a character in the scene.  If omitted, the character for which the Lipz file is playing should be used.
 
 ### "Points" Command
+
+Character points at a prop or another character. The state persists until the "stop pointing" command is given.
 
 Syntax: [ **character** ] points { **prop** | **target-character** }
 
 variable         | description
 -----------------|------------
-time             | See "Time Format" section.
-character        | ID of a character in the scene.
+character        | ID of a character in the scene.  If omitted, the character for which the Lipz file is playing should be used.
 prop             | ID of a prop in the scene.
 target-character | ID of a character in the scene.
+
+### "Stops Pointing" Command
+
+Character will stop pointing if a previous "points" command was given.
+
+Syntax: [ **character** ] stops pointing
+
+variable         | description
+-----------------|------------
+character        | ID of a character in the scene.  If omitted, the character for which the Lipz file is playing should be used.
 
 ### "Does" Command
 
@@ -293,6 +304,5 @@ Syntax: [ **character** ] does **action**
 
 variable         | description
 -----------------|------------
-time             | See "Time Format" section.
-character        | ID of a character in the scene.
-action           | ID of an engine-defined action.
+character        | ID of a character in the scene.  If omitted, the character for which the Lipz file is playing should be used.
+action           | ID of a game-defined action.
