@@ -29,6 +29,7 @@ The `visemes` element contains codes that indicate specific visemes (lip frames)
   * Synchronizing lip frames (visemes) to audio 
   * Subtitles with localization 
 * Easy to write parsing code in game software
+* Human-readable format
 * Extensible to cover different viseme types, e.g. mouth charts
 * Ability to attach events to specific times in dialogue that game can use to trigger character animation 
 
@@ -72,12 +73,11 @@ Code | Example Image | Description     | Code | Example Image | Description
 
 Code | Example Image | Description     | Code | Example Image | Description
 ---- | ------------- | --------------- | ---- | ------------- | -----------
-`-`  | ![-](a.png)   | Resting         | `D`  | ![D](d.png)   | A and I
-`A`  | ![A](a.png)   | M, B, and P     | `E`  | ![E](e.png)   | O
-`B`  | ![B](b.png)   | Most consonants | `F`  | ![F](f.png)   | W and Q
-`C`  | ![C](c.png)   | E               | `G`  | ![G](g.png)   | F and V
+`-`  | ![-](a.png)   | Resting         | `A`  | ![D](d.png)   | A and I
+`M`  | ![A](a.png)   | M, B, and P     | `O`  | ![E](e.png)   | O
+`S`  | ![B](b.png)   | Most consonants | `W`  | ![F](f.png)   | W and Q
+`E`  | ![C](c.png)   | E               | `F`  | ![G](g.png)   | F and V
 `L`  | ![L](l.png)   | L               | `U`  | ![U](u.png)   | U
-
 
 <div style="page-break-after: always;"></div>
 #### RMS Viseme Codes
@@ -105,6 +105,40 @@ Element         | Type                       | Constraints        | Description
 `viseme_type`     | *string* | "blair", "toonboom", or "rms" | The type of viseme encoding used by the `visemes` element. If unspecified, the value is supplied externally, e.g. a known constant value in game code or a general settings file.
 `events`     | *string* | Segment delimiter count must match `visemes`. | Events that can be correlated to segments to trigger emotions, gestures, and other animations that should be synchronized with audio. The syntax of the events is arbitrary and determined by what the game wishes to support, but this document offers the "Character Event Syntax" as a suggested starting point.
 `character` | *string* | Should match against list of characters in use by game | Character ID that game may use to identify in-game character associated with the Lipz file. If not specified, then game presumably has some other means of associated Lipz files to characters.
+
+## Using Only the Lipz Elements Important to Your Project
+
+All of the elements in the file format are optional. If you are authoring Lipz files for your project, here is a checklist of questions to decide which elements to use.
+
+* **Lip Synch** - Will your game perform lip synch?
+* **Subtitles** - Will your game display subtitles? If yes, then a few more questions...
+  * **Localized Subtitles** - Will your game display subtitles localized to multiple languages?
+  * **Short Audio** - Will your audio clips be short enough that one audio file would correspond to one displayed subtitle?
+* **Localized Audio** - Will you have localized dialogue audio?
+* **External** - Do you prefer to keep project-wide common settings out of individual Lipz files?
+* **Events** - Do you want to time character animation events to specific points in dialogue audio playback? If yes...
+  * **Event Context** - Do you want to include text in the Lipz file so you can see context needed for editing events?
+* **Character Context** - Inside of your game code at the point where you play audio dialogue, is it useful to have information from the Lipz file identifying the character that is speaking?
+
+If you know the answers to the above questions, you can find your recommended elements to use from the table below.
+
+Element         | Use If Answered
+--------------- | -------------------------- 
+`fps`             | "No" to **External**
+`text`            | "Yes" to **Subtitles** and "No" to **Localized Subtitles**.<br/>Or "Yes" to **Events** and **Event Context**.
+`text_`*ll*`-`*cc*  | "Yes" to **Subtitles** and **Localized Subtitles**.
+`visemes`         | "Yes" to **Lip Synch**
+`viseme_type`     |"Yes" to **Lip Synch** and "No" to **External**
+`events`     | "Yes" to **Events**
+`character` | "Yes" to **Character Context**
+
+Use segmenting (inclusion of `|` segment delimiter character) according to table below. 
+
+Feature         | Use If Answered
+--------------- | -------------------------- 
+segmenting      | "Yes" to **Subtitles** and "No" to **Short Audio**</br>Or "Yes" to **Events** and "No" to **Short Audio**. 
+
+The rationale is that segmenting is useful for either subtitles or tying character animation events to dalogue audio, but if the audio files are split into small enough clips, then segmenting is no longer useful.
 
 ## Segmenting
 
@@ -180,13 +214,13 @@ function getCurrentViseme(
 
 ## Character Event Syntax
 
-A game may optionally implement support for some or all of the character events described in this section. Character events are passed to the game via the `events` element. The events that are defined here are focused on kinds of animation that should happen with timing that is synchronized to audio.
+A game may optionally implement support for some or all of the character events described in this section, or merely use it as a jumping off point for it's own unique character event syntax. Character events are passed to the game via the `events` element. The events that are defined here are focused on kinds of animation that should happen with timing that is synchronized to audio.
 
 In the example below, a speaking character begins feeling sad, then his mood changes to irritated, and he finishes with a glance to another character he is speaking with. Each character event is specified at the beginning of a segment in the `text` element, and the timing of the segments is defined by the segment delimiters found in the `visemes` element.
 
 ```json
 {
-	"visemes" : "COOMCAAMCAAACECLOOLEE--|COOCECCOCOOCEEC-------|COOCOOOOO--",
+	"visemes" : "SOOSSAAMSAAASESLOOLEE--|SOOSESSOSOOSEES-------|SOOSOOOOO--",
 	"text" :    "Sometimes I get lonely.|Nothing to do here,   |you know?",
 	"events" :  "feels sad              |feels irritated       |sees amy",
 }
@@ -198,7 +232,7 @@ Often, it is another character besides the currently speaking one that reacts to
 
 ```json
 {
-	"visemes" : "ACAWAACACAAACCC--------------|AAMEEEEEE----",
+	"visemes" : "ASAWAASASAAASSS--------------|AAMEEEEEE----",
 	"text" :    "And the winner is...         |Amy!",
 	"events" :  "amy feels nervous            |amy feels happy"
 }
@@ -208,7 +242,7 @@ We may wish to specify multiple events occuring in one segment. This can be done
 
 ```json
 {
-	"visemes" : "ACAWAACACAAACCC--------------|AAMEEEEEE----",
+	"visemes" : "ASAWAASASAAASSS--------------|AAMEEEEEE----",
 	"text" :    "And the winner is...         |Amy!",
 	"events" :  "amy feels nervous,rob feels nervous|amy feels happy,rob feels happy"
 }
@@ -278,7 +312,7 @@ character        | ID of a character in the scene.  If omitted, the character fo
 
 ### "Points" Command
 
-Character points at a prop or another character. The state persists until the "stop pointing" command is given.
+Character points at a prop or another character and continue to point. The state persists until the "stop pointing" command is given.
 
 Syntax: [ **character** ] points { **prop** | **target-character** }
 
@@ -290,7 +324,7 @@ target-character | ID of a character in the scene.
 
 ### "Stops Pointing" Command
 
-Character will stop pointing if a previous "points" command was given.
+Character will stop pointing. For this command to have effect, a previous "points" command for the character must be specified.
 
 Syntax: [ **character** ] stops pointing
 
