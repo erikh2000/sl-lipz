@@ -8,8 +8,8 @@ Here's a quick example of a Lipz file to give you the gist:
 
 ```json
 {
-	"text" :  "Now, boys and girls, I'd like you to put away your readers|and get ready for a very special treat.",
-	"visemes" : "ABBBCABBFGGBBCAABBCDFFGBAAAABAACDEFFFCCBBBABBCCCDB|CCCBBAAGGBBCCDDDBBAACCBBBDDBBCCAAABCCC---",
+	"text-en_us" :  "Now, boys and girls, I'd like you to put away your readers|and get ready for a very special treat.",
+	"visemes" :     "ABBBCABBFGGBBCAABBCDFFGBAAAABAACDEFFFCCBBBABBCCCDB|CCCBBAAGGBBCCDDDBBAACCBBBDDBBCCAAABCCC---",
 	"viseme_type" : "toonboom",
 	"fps" : 24
 }
@@ -22,16 +22,15 @@ The `visemes` element contains codes that indicate specific visemes (lip frames)
 
 `viseme_type` and `fps` are used to interpret the codes in the `visemes` element correctly.
 
-
 ### Goals of Lipz Format
 
 * Cover use cases for character animation in games including:
   * Synchronizing lip frames (visemes) to audio 
   * Subtitles with localization 
+  * Trigger in-game animation that is timed to audio
 * Easy to write parsing code in game software
-* Human-readable format
+* Human-readable format that can be hand-edited
 * Extensible to cover different viseme types, e.g. mouth charts
-* Ability to attach events to specific times in dialogue that game can use to trigger character animation 
 
 ### Non-Goals
 
@@ -86,7 +85,7 @@ Code | Example Image | Description    | Code | Example Image | Description
 ---- | ------------- | -------------- | ---- | ------------- | --------------
 `-`  | ![-](a.png)   | Resting        | `5`  | ![5](d.png)   |                
 `0`  | ![0](a.png)   | Closed         | `6`  | ![6](d2.png)  |                
-`1`  | ![1](e.png)   | Minimally open | `7`  | ![7](d3.png)  |                
+`1`  | ![1](e.png)   | Minimally open | `7`  | ![7](d3.png)  | "Yell" open               
 `2`  | ![2](e2.png)  |                | `8`  | ![8](d4.png)  | 
 `3`  | ![3](e3.png)  |                | `9`  | ![9](d5.png)  | Fully open    
 `4`  | ![4](e4.png)  |                |
@@ -99,38 +98,30 @@ The Lipz file format uses JSON. It is UTF-8 encoded, so may contain Unicode char
 Element         | Type                       | Constraints        | Description
 --------------- | -------------------------- | ------------------ | -----------
 `fps`             | *number*                     | Between 1 and 1000 | Frame rate of viseme specification expressed in frames per second. Used to interpret values of `viseme` elements, where one character equals one frame. Note that the game frame rate is not tied to this value. If unspecified, the value is supplied externally, e.g. a known constant value in game code or a general settings file.
-`text`            | *string* | Segment delimiter count must match `visemes`. | Dialogue text that corresponds to audio. This form is used when the Lipz file contains text in just one language. Text may be segmented with use of the `|` character (see more about this in "Segmenting" section). Custom meta-information not intended for display can be stored with the text inside of curly braces (`{` and `}`).
-`text_`*ll*`-`*cc*  | *string* | Segment delimiter count must match `visemes`. | Dialogue text that corresponds to audio with the additional specification of a language locale.  This form is used when the Lipz file contains text for more than one language. The language locale consists of a lower-case, 2-character, ISO 639-1 language code followed by a hyphen (`-`) followed by a lower-case, 2-character, ISO 3166-1 country code. Example: `text_es-mx` (Mexican Spanish). Text may be segmented with use of the `|` character (see more about this in "Segmenting" section). Custom meta-information not intended for display can be stored with the text inside of curly braces (`{` and `}`).
+`text_`*ll*`-`*cc*  | *string* | Segment delimiter count must match `visemes`. | Dialogue text that corresponds to audio with the additional specification of a language locale. The language locale consists of a lower-case, 2-character, ISO 639-1 language code followed by a hyphen (`-`) followed by a lower-case, 2-character, ISO 3166-1 country code. Example: `text_es-mx` (Mexican Spanish). Text may be segmented with use of the `|` character (see more about this in "Segmenting" section). Custom meta-information not intended for display can be stored with the text inside of curly braces (`{` and `}`).
 `visemes`         | *string* | Constrained according to `viseme_type`. | Each character represents the viseme for one frame of animation. The exception is the `|` character which delineates segments, and does not count for a frame.
 `viseme_type`     | *string* | "blair", "toonboom", or "rms" | The type of viseme encoding used by the `visemes` element. If unspecified, the value is supplied externally, e.g. a known constant value in game code or a general settings file.
 `events`     | *string* | Segment delimiter count must match `visemes`. | Events that can be correlated to segments to trigger emotions, gestures, and other animations that should be synchronized with audio. The syntax of the events is arbitrary and determined by what the game wishes to support, but this document offers the "Character Event Syntax" as a suggested starting point.
-`character` | *string* | Should match against list of characters in use by game | Character ID that game may use to identify in-game character associated with the Lipz file. If not specified, then game presumably has some other means of associated Lipz files to characters.
 
 ## Using Only the Lipz Elements Important to Your Project
 
-All of the elements in the file format are optional. If you are authoring Lipz files for your project, here is a checklist of questions to decide which elements to use.
+All of the elements in the file format are optional. If you are authoring Lipz files for your project, here is a checklist of questions to decide which elements to use. Let's assume your project will be performing lip synch based on Lipz files, because it becomes hard to recommend use of Lipz otherwise.
 
-* **Lip Synch** - Will your game perform lip synch?
-* **Subtitles** - Will your game display subtitles? If yes, then a few more questions...
-  * **Localized Subtitles** - Will your game display subtitles localized to multiple languages?
+* **Subtitles** - Will your game display subtitles? If yes...
   * **Short Audio** - Will your audio clips be short enough that one audio file would correspond to one displayed subtitle?
-* **Localized Audio** - Will you have localized dialogue audio?
 * **External** - Do you prefer to keep project-wide common settings out of individual Lipz files?
 * **Events** - Do you want to time character animation events to specific points in dialogue audio playback? If yes...
   * **Event Context** - Do you want to include text in the Lipz file so you can see context needed for editing events?
-* **Character Context** - Inside of your game code at the point where you play audio dialogue, is it useful to have information from the Lipz file identifying the character that is speaking?
 
 If you know the answers to the above questions, you can find your recommended elements to use from the table below.
 
-Element         | Use If Answered
---------------- | -------------------------- 
-`fps`             | "No" to **External**
-`text`            | "Yes" to **Subtitles** and "No" to **Localized Subtitles**.<br/>Or "Yes" to **Events** and **Event Context**.
-`text_`*ll*`-`*cc*  | "Yes" to **Subtitles** and **Localized Subtitles**.
-`visemes`         | "Yes" to **Lip Synch**
-`viseme_type`     |"Yes" to **Lip Synch** and "No" to **External**
-`events`     | "Yes" to **Events**
-`character` | "Yes" to **Character Context**
+Element            | Use If Answered
+------------------ | -------------------------- 
+`fps`              | "No" to **External**
+`text_`*ll*`-`*cc* | "Yes" to **Subtitles** and **Localized Subtitles**.<br/>Or "Yes" to **Events** and **Event Context**.
+`visemes`          | Use this element in all cases.
+`viseme_type`      | "No" to **External**
+`events`           | "Yes" to **Events**
 
 Use segmenting (inclusion of `|` segment delimiter character) according to table below. 
 
@@ -138,7 +129,7 @@ Feature         | Use If Answered
 --------------- | -------------------------- 
 segmenting      | "Yes" to **Subtitles** and "No" to **Short Audio**</br>Or "Yes" to **Events** and "No" to **Short Audio**. 
 
-The rationale is that segmenting is useful for either subtitles or tying character animation events to dalogue audio, but if the audio files are split into small enough clips, then segmenting is no longer useful.
+The rationale is that segmenting is useful for either subtitles or tying character animation events to dalogue audio, but if the audio files are split into small enough clips, then segmenting with a Lipz file is no longer useful.
 
 ## Segmenting
 
@@ -160,8 +151,8 @@ If text is specified that also contains segmenting characters (`|`) then the seg
 
 ```json
 {
-	"visemes" : "125643356734563-----|9723399421---",
-	"text" :    "Let me think...     |It was you!"
+	"visemes" :    "125643356734563-----|9723399421---",
+	"text_en-us" : "Let me think...     |It was you!"
 }
 ``` 
 
@@ -171,9 +162,9 @@ Adding to this example, it would be extra-dramatic to have the character point a
 
 ```json
 {
-	"visemes" : "125643356734563-----|9723399421---",
-	"text" :    "Let me think...     |It was you!",
-	"events" :  "                    |points butler"
+	"visemes" :    "125643356734563-----|9723399421---",
+	"text_en-us" : "Let me think...     |It was you!",
+	"events" :     "                    |points butler"
 }
 ```
 
@@ -183,9 +174,9 @@ If the game implements a scripting container, you might alternatively include sc
 
 ```json
 {
-	"visemes" : "125643356734563-----|9723399421---",
-	"text" :    "Let me think...     |It was you!",
-	"events" :  "                    |pointAt(butler)"
+	"visemes" :    "125643356734563-----|9723399421---",
+	"text_en-us" : "Let me think...     |It was you!",
+	"events" :     "                    |pointAt(butler)"
 }
 ```
 
@@ -220,9 +211,9 @@ In the example below, a speaking character begins feeling sad, then his mood cha
 
 ```json
 {
-	"visemes" : "SOOSSAAMSAAASESLOOLEE--|SOOSESSOSOOSEES-------|SOOSOOOOO--",
-	"text" :    "Sometimes I get lonely.|Nothing to do here,   |you know?",
-	"events" :  "feels sad              |feels irritated       |sees amy",
+	"visemes" :    "SOOSSAAMSAAASESLOOLEE--|SOOSESSOSOOSEES-------|SOOSOOOOO--",
+	"text-en_us" : "Sometimes I get lonely.|Nothing to do here,   |you know?",
+	"events" :     "feels sad              |feels irritated       |sees amy",
 }
 ```
 
@@ -232,9 +223,9 @@ Often, it is another character besides the currently speaking one that reacts to
 
 ```json
 {
-	"visemes" : "ASAWAASASAAASSS--------------|AAMEEEEEE----",
-	"text" :    "And the winner is...         |Amy!",
-	"events" :  "amy feels nervous            |amy feels happy"
+	"visemes" :    "ASAWAASASAAASSS--------------|AAMEEEEEE----",
+	"text-en_us" : "And the winner is...         |Amy!",
+	"events" :     "amy feels nervous            |amy feels happy"
 }
 ```
 
@@ -242,12 +233,12 @@ We may wish to specify multiple events occuring in one segment. This can be done
 
 ```json
 {
-	"visemes" : "ASAWAASASAAASSS--------------|AAMEEEEEE----",
-	"text" :    "And the winner is...         |Amy!",
-	"events" :  "amy feels nervous,rob feels nervous|amy feels happy,rob feels happy"
+	"visemes" :    "ASAWAASASAAASSS--------------|AAMEEEEEE----",
+	"text-en_us" : "And the winner is...         |Amy!",
+	"events" :     "amy feels nervous,rob feels nervous|amy feels happy,rob feels happy"
 }
 ```
-
+Note that it's not necessary to use whitespace inside of element values to line up segment delimiters (`|`). This is just a formatting nicety that is available.
 
 ### "Feels" Command
 
