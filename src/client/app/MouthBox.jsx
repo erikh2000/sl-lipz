@@ -7,7 +7,7 @@ class MouthBox extends React.Component {
     }
 
     render() {
-        var visemeClass = "viseme " + this._getVisemeClass(this.props.viseme);
+        var visemeClass = "viseme " + this._getVisemeClass(this.props.visemeType, this.props.viseme);
         return (
             <div className="mouthBox">
                 <div className={ visemeClass } />
@@ -15,13 +15,13 @@ class MouthBox extends React.Component {
         );
     }
     
-    _getVisemeClass(viseme) {
-    if (!viseme || "" === viseme || "-" === viseme) {
-        return "viseme-default"
-    } else {
-        return "viseme-" + viseme.trim();
+    _getVisemeClass(visemeType, viseme) {
+        if (!viseme || !visemeType || "" === viseme || "-" === viseme) {
+            return "viseme-default"
+        } else {
+            return "viseme-" + visemeType + '-' + viseme.toLowerCase();
+        }
     }
-}
 }
 
 

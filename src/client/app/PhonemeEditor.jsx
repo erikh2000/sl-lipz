@@ -37,13 +37,13 @@ spellCheck="false" value={ this.state.phonemes } id="phonemes"
     _onTextChange(event) {
         var sourceText = RiTa.stripPunctuation(event.target.value),
             phonemes = RiTa.getPhonemes(sourceText);
-        
+        phonemes = phonemes.replace(/-/g, ' ');
         this.setState({
             text: event.target.value,
             phonemes: phonemes
         });
         
-        this.props.onSetPhonemes(phonemes);
+        this.props.setParentPhonemes(phonemes);
     }
     
     _onPhonemesChange(event) {
@@ -51,7 +51,7 @@ spellCheck="false" value={ this.state.phonemes } id="phonemes"
         this.setState({
 			phonemes: newValue
 		});
-        this.props.onSetPhonemes(phonemes);
+        this.props.setParentPhonemes(phonemes);
         this._setFrameOnCursor(event.target);
     }
     
@@ -86,8 +86,8 @@ spellCheck="false" value={ this.state.phonemes } id="phonemes"
                 cursorPos: newCursorPos
             });
             phoneme = this._getPhonemeAtPos(this.state.phonemes, newCursorPos);
-            viseme = this.visemeUtil.getFrameViseme('toonboom', frameRms, phoneme); //TODO--get viseme type and pass in 1st param.
-            this.props.onSetViseme(viseme);
+            viseme = this.visemeUtil.getFrameViseme(this.props.visemeType, frameRms, phoneme);
+            this.props.setParentViseme(viseme);
         }
     }
     

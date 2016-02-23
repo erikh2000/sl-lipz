@@ -13,30 +13,38 @@ class App extends React.Component {
         this.state= {
             wave: wave,
             viseme: null,
+            visemeType: "blair",
             phonemes: ""
         };
-        this.onSetViseme = this.onSetViseme.bind(this);
-        this.onSetPhonemes = this.onSetPhonemes.bind(this);
+        this.setViseme = this.setViseme.bind(this);
+        this.setVisemeType = this.setVisemeType.bind(this);
+        this.setPhonemes = this.setPhonemes.bind(this);
     }
   
     render () {
         return (
             <div>
                 <WaveSelector wave={this.state.wave} />
-                <MouthBox viseme={this.state.viseme} />
-                <PhonemeEditor wave={this.state.wave} onSetViseme={this.onSetViseme} onSetPhonemes={this.onSetPhonemes} />
-                <VisemeBox wave={this.state.wave} phonemes={this.state.phonemes} onSetViseme={this.onSetViseme} />
+                <MouthBox visemeType={this.state.visemeType} viseme={this.state.viseme} />
+                <PhonemeEditor wave={this.state.wave} visemeType={this.state.visemeType} setParentViseme={this.setViseme} setParentPhonemes={this.setPhonemes} />
+                <VisemeBox wave={this.state.wave} visemeType={this.state.visemeType} phonemes={this.state.phonemes} setParentViseme={this.setViseme} setParentVisemeType={this.setVisemeType} />
             </div>
         );
     }
     
-    onSetViseme(viseme) {
+    setViseme(viseme) {
         this.setState({
             viseme: viseme
         });
     }
     
-    onSetPhonemes(phonemes) {
+    setVisemeType(visemeType) {
+        this.setState({
+            visemeType: visemeType
+        });
+    }
+    
+    setPhonemes(phonemes) {
         this.setState({
             phonemes: phonemes
         });

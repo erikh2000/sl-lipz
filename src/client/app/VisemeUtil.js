@@ -5,7 +5,7 @@ class VisemeUtil {
     constructor() {
         this.arpabetToToonBoom = new ArpabetToToonBoom();
         this.arpabetToBlair = new ArpabetToBlair();
-        this.rmsQuiet = .1;
+        this.rmsQuiet = .01;
         this.rmsPeak = .5;
         this.rmsFirstViseme = "0";
         this.rmsLastViseme = "9";
@@ -45,6 +45,7 @@ class VisemeUtil {
         
         for (frameNo = 0; frameNo < frameCount; ++frameNo) {
             rms = wave.getFrameRms(frameNo);
+            console.log(rms);
             ret.push(this.getFrameVisemeUsingRMS(rms));
         }
         ret.push("-");
@@ -56,7 +57,7 @@ class VisemeUtil {
         var pos, frameNo = -1, inPhoneme = false, isQuietFrame, phoneme, viseme, visemeMap, char, ret = [], frameRMS;
         
         if (visemeType === 'rms') {
-            return createFrameVisemesForWaveUsingRMS(wave);
+            return this.createFrameVisemesForWaveUsingRMS(wave);
         } else if (visemeType === 'toonboom') {
             visemeMap = this.arpabetToToonBoom;
         } else if (visemeType === 'blair') {
@@ -82,7 +83,7 @@ class VisemeUtil {
                         console.log("Quiet at frame #" + ret.length);
                         viseme = "-"; 
                     } else {
-                        viseme = getFrameViseme(visemeType, frameRMS, phoneme);
+                        viseme = this.getFrameViseme(visemeType, frameRMS, phoneme);
                     }
                     ret.push(viseme);
                 }
