@@ -166,7 +166,7 @@ class Wave {
             writeBuffer = this.audioContext.createBuffer(1, writeSize, buffer.sampleRate),
             write = writeBuffer.getChannelData(0),
             read = buffer.getChannelData(0), //TODO--mix multi-channel into one channel. This only gets first channel.
-            i, rmsTotal = 0;
+            i, rmsTotal = 0, sampleCountForRms = 0;
         
         for (i = 0; i < writeSize; ++i) {
             if (startRead + i >= buffer.length) {
@@ -177,10 +177,15 @@ class Wave {
             
             if (i < this.samplesPerFrame && startRead + i < buffer.length) {
                 rmsTotal += (write[i] * write[i]);
+                ++sampleCountForRms;
             }
         }
         
-        writeBuffer.rms = Math.sqrt(rmsTotal);
+        if (sampleCountForRms === 0) {
+            writeBuffer.rms = 0;
+        } else {
+            writeBuffer.rms = Math.sqrt(rmsTotal / sampleCountForRms);
+        }
         
         return writeBuffer;
     }
