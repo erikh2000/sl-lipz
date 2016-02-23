@@ -1,5 +1,5 @@
 import React from 'react';
-import VisemeUtil from './VisemeUtil.js'
+import VisemeUtil from './VisemeUtil.js';
 
 class VisemeBox extends React.Component {
     
@@ -7,6 +7,7 @@ class VisemeBox extends React.Component {
         super(props);
         this._onPreviewClick = this._onPreviewClick.bind(this);
         this._onVisemeTypeChange = this._onVisemeTypeChange.bind(this);
+        this._onDownloadLipz = this._onDownloadLipz.bind(this);
         this.visemeUtil = new VisemeUtil();
     }
 
@@ -28,7 +29,6 @@ class VisemeBox extends React.Component {
     _onPreviewClick() {
         var that = this,
             frameVisemes = this.visemeUtil.createFrameVisemesForWave(this.props.visemeType, this.props.wave, this.props.phonemes);
-        console.log("visemes:" + frameVisemes.join(""));
         
         this.props.wave.play();
         setTimeout(onUpdateMouth, 10);
@@ -55,7 +55,14 @@ class VisemeBox extends React.Component {
     }
     
     _onDownloadLipz() {
-        //TODO
+        var text, frameVisemes, lipzContent, fps, content;
+        frameVisemes = this.visemeUtil.createFrameVisemesForWave(this.props.visemeType, this.props.wave, this.props.phonemes);
+        lipzContent = {
+            fps: 24,
+            visemeType: this.props.visemeType,
+            visemes: frameVisemes.join(""),
+        };
+        console.log(JSON.stringify(lipzContent)); //TODO--output as file.
     }
     
     _onVisemeTypeChange(e) {

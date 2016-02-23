@@ -45,7 +45,6 @@ class VisemeUtil {
         
         for (frameNo = 0; frameNo < frameCount; ++frameNo) {
             rms = wave.getFrameRms(frameNo);
-            console.log(rms);
             ret.push(this.getFrameVisemeUsingRMS(rms));
         }
         ret.push("-");
@@ -80,7 +79,6 @@ class VisemeUtil {
                 } else {
                     inPhoneme = false;
                     if (isQuietFrame) {
-                        console.log("Quiet at frame #" + ret.length);
                         viseme = "-"; 
                     } else {
                         viseme = this.getFrameViseme(visemeType, frameRMS, phoneme);
@@ -93,7 +91,6 @@ class VisemeUtil {
                     inPhoneme = true;
                 } else {
                     if (isQuietFrame) {
-                        console.log("Quiet at frame #" + ret.length);
                         viseme = "-";
                     }
                     ret.push(viseme);

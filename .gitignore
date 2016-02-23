@@ -1,3 +1,4 @@
+ignore_*
 .DS_Store
 *~
 src/client/public
