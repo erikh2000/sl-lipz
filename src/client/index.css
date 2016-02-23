@@ -55,30 +55,74 @@
     background-image: url(images/a.png);
 }
 
-.viseme-a {
+.viseme-toonboom-default {
     background-image: url(images/a.png);
 }
 
-.viseme-b {
+.viseme-toonboom-a {
+    background-image: url(images/a.png);
+}
+
+.viseme-toonboom-b {
     background-image: url(images/b.png);
 }
 
-.viseme-c {
+.viseme-toonboom-c {
     background-image: url(images/c.png);
 }
 
-.viseme-d {
+.viseme-toonboom-d {
     background-image: url(images/d.png);
 }
 
-.viseme-e {
+.viseme-toonboom-e {
     background-image: url(images/e.png);
 }
 
-.viseme-f {
+.viseme-toonboom-f {
     background-image: url(images/f.png);
 }
 
-.viseme-g {
+.viseme-toonboom-g {
     background-image: url(images/g.png);
+}
+
+.viseme-blair-default {
+    background-image: url(images/a.png);
+}
+
+.viseme-blair-m {
+    background-image: url(images/a.png);
+}
+
+.viseme-blair-s {
+    background-image: url(images/b.png);
+}
+
+.viseme-blair-e {
+    background-image: url(images/c.png);
+}
+
+.viseme-blair-a {
+    background-image: url(images/d.png);
+}
+
+.viseme-blair-o {
+    background-image: url(images/e.png);
+}
+
+.viseme-blair-w {
+    background-image: url(images/f.png);
+}
+
+.viseme-blair-f {
+    background-image: url(images/g.png);
+}
+
+.viseme-blair-l {
+    background-image: url(images/l.png);
+}
+
+.viseme-blair-u {
+    background-image: url(images/u.png);
 }
