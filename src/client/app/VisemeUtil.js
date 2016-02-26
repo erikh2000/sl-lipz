@@ -5,9 +5,9 @@ class VisemeUtil {
     constructor() {
         this.arpabetToToonBoom = new ArpabetToToonBoom();
         this.arpabetToBlair = new ArpabetToBlair();
-        this.rmsQuiet = .01;
+        this.rmsQuiet = .00001;
         this.rmsPeak = .5;
-        this.rmsFirstViseme = "0";
+        this.rmsFirstViseme = "1";
         this.rmsLastViseme = "9";
         this.rmsVisemeCount = this.rmsLastViseme.charCodeAt(0) - this.rmsFirstViseme.charCodeAt(0) + 1;
     }

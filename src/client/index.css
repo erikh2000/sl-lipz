@@ -1,3 +1,7 @@
+.hidden {
+    display: none;
+}
+
 .waveSelector {
     padding: 20px;
 }
@@ -8,7 +12,7 @@
 }
 
 .phonemeEditor {
-    
+
 }
 
 .formGroup {
@@ -40,6 +44,27 @@
 
 .visemeBox {
     
+}
+
+.visemeType {
+
+}
+
+.visemeTypeLabel {
+
+}
+
+.downloadLipz {
+
+}
+
+.lipzFileContent {
+    word-break: break-all;
+    font-family: monospace;
+    color: lightgreen;
+    background-color: black;
+    padding: 10px;
+    margin-top: 5px;
 }
 
 .visemeBox .previewButton {
@@ -125,4 +150,48 @@
 
 .viseme-blair-u {
     background-image: url(images/u.png);
+}
+
+.viseme-rms-default {
+    background-image: url(images/a.png);
+}
+
+.viseme-rms-0 {
+    background-image: url(images/a.png);
+}
+
+.viseme-rms-1 {
+    background-image: url(images/c.png);
+}
+
+.viseme-rms-2 {
+    background-image: url(images/c.png);
+}
+
+.viseme-rms-3 {
+    background-image: url(images/c.png);
+}
+
+.viseme-rms-4 {
+    background-image: url(images/c.png);
+}
+
+.viseme-rms-5 {
+    background-image: url(images/c.png);
+}
+
+.viseme-rms-6 {
+    background-image: url(images/c.png);
+}
+
+.viseme-rms-7 {
+    background-image: url(images/d.png);
+}
+
+.viseme-rms-8 {
+    background-image: url(images/d.png);
+}
+
+.viseme-rms-9 {
+    background-image: url(images/d.png);
 }

@@ -5,6 +5,9 @@ class VisemeBox extends React.Component {
     
     constructor(props) {
         super(props);
+        this.state = {
+            lipzFileContent: ""
+        };
         this._onPreviewClick = this._onPreviewClick.bind(this);
         this._onVisemeTypeChange = this._onVisemeTypeChange.bind(this);
         this._onDownloadLipz = this._onDownloadLipz.bind(this);
@@ -14,7 +17,7 @@ class VisemeBox extends React.Component {
     render() {
         return (
             <div className="visemeBox formGroup">
-                <label className="leftLabel" forName="visemeType">Viseme type:</label>
+                <label className="leftLabel" forName="visemeType" className="visemeTypeLabel">Viseme type:</label>
                 <select className="visemeType" name="visemeType" value={ this.props.visemeType } onChange={ this._onVisemeTypeChange } >
                     <option value="blair">Blair</option>
                     <option value="toonboom">Toon Boom</option>
@@ -22,13 +25,31 @@ class VisemeBox extends React.Component {
                 </select>
                 <button className="previewButton" onClick={ this._onPreviewClick }>Preview Animation</button>
                 <button className="downloadLipz" onClick={ this._onDownloadLipz }>Download .Lipz</button>
+                <div className={"lipzFileContent " + this._getHideContentClass(this.state.lipzFileContent)}>{ this.state.lipzFileContent }</div>
             </div>
         );
+    }
+    
+    _getHideContentClass(content) {
+        if (!content || content === "") {
+            return "hidden"
+        } else {
+            return ""
+        }
     }
     
     _onPreviewClick() {
         var that = this,
             frameVisemes = this.visemeUtil.createFrameVisemesForWave(this.props.visemeType, this.props.wave, this.props.phonemes);
+        
+        var lipzContent = JSON.stringify({
+            fps: 24,
+            visemeType: this.props.visemeType,
+            visemes: frameVisemes.join(""),
+        });
+        this.setState({
+            lipzFileContent: lipzContent
+        });
         
         this.props.wave.play();
         setTimeout(onUpdateMouth, 10);

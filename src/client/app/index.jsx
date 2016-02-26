@@ -13,7 +13,7 @@ class App extends React.Component {
         this.state= {
             wave: wave,
             viseme: null,
-            visemeType: "blair",
+            visemeType: "rms",
             phonemes: ""
         };
         this.setViseme = this.setViseme.bind(this);
@@ -24,8 +24,8 @@ class App extends React.Component {
     render () {
         return (
             <div>
-                <WaveSelector wave={this.state.wave} />
                 <MouthBox visemeType={this.state.visemeType} viseme={this.state.viseme} />
+                <WaveSelector wave={this.state.wave} />
                 <PhonemeEditor wave={this.state.wave} visemeType={this.state.visemeType} setParentViseme={this.setViseme} setParentPhonemes={this.setPhonemes} />
                 <VisemeBox wave={this.state.wave} visemeType={this.state.visemeType} phonemes={this.state.phonemes} setParentViseme={this.setViseme} setParentVisemeType={this.setVisemeType} />
             </div>

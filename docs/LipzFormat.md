@@ -98,8 +98,8 @@ The Lipz file format uses JSON. It is UTF-8 encoded, so may contain Unicode char
 Element         | Type                       | Constraints        | Description
 --------------- | -------------------------- | ------------------ | -----------
 `fps`             | *number*                     | Between 1 and 1000 | Frame rate of viseme specification expressed in frames per second. Used to interpret values of `viseme` elements, where one character equals one frame. Note that the game frame rate is not tied to this value. If unspecified, the value is supplied externally, e.g. a known constant value in game code or a general settings file.
-`text_`*ll*`-`*cc*  | *string* | Segment delimiter count must match `visemes`. | Dialogue text that corresponds to audio with the additional specification of a language locale. The language locale consists of a lower-case, 2-character, ISO 639-1 language code followed by a hyphen (`-`) followed by a lower-case, 2-character, ISO 3166-1 country code. Example: `text_es-mx` (Mexican Spanish). Text may be segmented with use of the `|` character (see more about this in "Segmenting" section). Custom meta-information not intended for display can be stored with the text inside of curly braces (`{` and `}`).
-`visemes`         | *string* | Constrained according to `viseme_type`. | Each character represents the viseme for one frame of animation. The exception is the `|` character which delineates segments, and does not count for a frame.
+`text_`*ll*`-`*cc*  | *string* | Segment delimiter count must match `visemes`. | Dialogue text that corresponds to audio with the additional specification of a language locale. The language locale consists of a lower-case, 2-character, ISO 639-1 language code followed by a hyphen (`-`) followed by a lower-case, 2-character, ISO 3166-1 country code. Example: `text_es-mx` (Mexican Spanish). Text may be segmented with use of the `|` character (see more about this in "Segmenting" section). White space can optionally be used for clearer formatting inside the Lipz file, so a game's text display code should strip leading and trailing white space.
+`visemes`         | *string* | Constrained according to `viseme_type`. | Each character represents the viseme for one frame of animation, with the exception of white space characters and the `|` character which do not count for a frame. White space can optionally be used for clearer formatting.
 `viseme_type`     | *string* | "blair", "toonboom", or "rms" | The type of viseme encoding used by the `visemes` element. If unspecified, the value is supplied externally, e.g. a known constant value in game code or a general settings file.
 `events`     | *string* | Segment delimiter count must match `visemes`. | Events that can be correlated to segments to trigger emotions, gestures, and other animations that should be synchronized with audio. The syntax of the events is arbitrary and determined by what the game wishes to support, but this document offers the "Character Event Syntax" as a suggested starting point.
 
@@ -118,7 +118,7 @@ If you know the answers to the above questions, you can find your recommended el
 Element            | Use If Answered
 ------------------ | -------------------------- 
 `fps`              | "No" to **External**
-`text_`*ll*`-`*cc* | "Yes" to **Subtitles** and **Localized Subtitles**.<br/>Or "Yes" to **Events** and **Event Context**.
+`text_`*ll*`-`*cc* | "Yes" to **Subtitles**<br/>Or... "Yes" to **Events** and **Event Context**
 `visemes`          | Use this element in all cases.
 `viseme_type`      | "No" to **External**
 `events`           | "Yes" to **Events**
@@ -127,7 +127,7 @@ Use segmenting (inclusion of `|` segment delimiter character) according to table
 
 Feature         | Use If Answered
 --------------- | -------------------------- 
-segmenting      | "Yes" to **Subtitles** and "No" to **Short Audio**</br>Or "Yes" to **Events** and "No" to **Short Audio**. 
+segmenting      | "Yes" to **Subtitles** and "No" to **Short Audio**</br>Or... "Yes" to **Events** and "No" to **Short Audio**. 
 
 The rationale is that segmenting is useful for either subtitles or tying character animation events to dalogue audio, but if the audio files are split into small enough clips, then segmenting with a Lipz file is no longer useful.
 
@@ -193,7 +193,7 @@ function getCurrentViseme(
 		visemes,          //String loaded from "visemes" element of Lipz file.
 		fps) {            //Frame rate used for interpreting length of each frame in "visemes".
 	
-	var unsegVisemes = visemes.replace(/\|/g, ''); //Removes any segment delimiter "|" characters.
+	var unsegVisemes = visemes.replace(/\|\s/g, ''); //Removes any segment delimiter "|" characters or white space.
 	var frameNo = Math.floor( playPositionSecs * fps );
 	if (frameNo < 0 || frameNo >= visemes.length) { //Frame# is out of bounds.
 		return '-'; //Return "resting mouth" viseme as a safe default.
@@ -235,7 +235,7 @@ We may wish to specify multiple events occuring in one segment. This can be done
 {
 	"visemes" :    "ASAWAASASAAASSS--------------|AAMEEEEEE----",
 	"text-en_us" : "And the winner is...         |Amy!",
-	"events" :     "amy feels nervous,rob feels nervous|amy feels happy,rob feels happy"
+	"events" :     "amy feels nervous,rob feels nervous|amy feels happy,rob feels sad"
 }
 ```
 Note that it's not necessary to use whitespace inside of element values to line up segment delimiters (`|`). This is just a formatting nicety that is available.
