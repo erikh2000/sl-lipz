@@ -13,7 +13,7 @@ class App extends React.Component {
         this.state= {
             wave: wave,
             viseme: null,
-            visemeType: "rms",
+            visemeType: "blair",
             phonemes: ""
         };
         this.setViseme = this.setViseme.bind(this);
