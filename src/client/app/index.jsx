@@ -1,6 +1,6 @@
 import React from 'react';
 import {render} from 'react-dom';
-import Rita from '../../libs/rita-full.js';
+import PhonemeUtil from './PhonemeUtil.js';
 import Wave from './Wave.js';
 import WaveSelector from './WaveSelector.jsx';
 import PhonemeEditor from './PhonemeEditor.jsx';
@@ -21,6 +21,7 @@ class App extends React.Component {
             arePhonemesLinkedToText: true,
             isWaveLoaded: false
         };
+        this.phonemeUtil = new PhonemeUtil();
         this.setViseme = this.setViseme.bind(this);
         this.setVisemeType = this.setVisemeType.bind(this);
         this.setPhonemes = this.setPhonemes.bind(this);
@@ -30,10 +31,6 @@ class App extends React.Component {
     }
   
     render () {
-        //
-        //        <VisemeBox wave={this.state.wave} visemeType={this.state.visemeType} phonemes=
-        //{this.state.phonemes} setParentViseme={this.setViseme} setParentVisemeType={this.setVisemeType} />
-        
         var isTextEditorVisible = this.state.isWaveLoaded;
         var isPhonemeEditorVisible = (this.state.visemeType != "rms") && isTextEditorVisible && this.state.text !== "";
         
@@ -73,15 +70,7 @@ class App extends React.Component {
     
     setText(text) {
         if (this.state.arePhonemesLinkedToText) {
-            var sourceText = text.toLowerCase().trim();
-            sourceText = sourceText.replace(/\'/g, ''); //Remove apostrophes.
-            sourceText = sourceText.replace(/\|/g, ' | '); //Put spaces around delimiters so they don't mess up arpabet parsing.
-            var phonemes = RiTa.getPhonemes(sourceText);
-            phonemes = phonemes.replace(/-/g, ' '); //Replace "-" with " ".
-            phonemes = phonemes.replace(/[^a-z\|\s:]/g, ''); //Remove any non-arpabet and non "|" characters.
-            phonemes = phonemes.replace(/\s\s+/g, ' '); //Condense multiple whitespace characters to a single space.
-            phonemes = phonemes.replace(/ \|/g, '\|'); //Remove space in front of "|".
-            phonemes = phonemes.replace(/\| /g, '\|'); //Remove space after "|".
+            var phonemes = this.phonemeUtil.getPhonemesFromText(text);
             this.setState({
                 text: text,
                 phonemes: phonemes

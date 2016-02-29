@@ -1,30 +1,35 @@
 import React from 'react';
 import VisemeUtil from './VisemeUtil.js';
+import PhonemeUtil from './PhonemeUtil.js';
 
 class PhonemeEditor extends React.Component {
     
     constructor(props) {
         super(props);
         this.state = {
-            cursorPos: -1
+            cursorPos: -1,
+            frameNo: 0
         };
         this._onPhonemesChange = this._onPhonemesChange.bind(this);
-        this._onPhonemesKeyDown = this._onPhonemesKeyDown.bind(this);
+        this._onPhonemesKeyUp = this._onPhonemesKeyUp.bind(this);
         this._onPhonemesMouseUp = this._onPhonemesMouseUp.bind(this);
         this._onPhonemesFocus = this._onPhonemesFocus.bind(this);
         this._onPhonemesBlur = this._onPhonemesBlur.bind(this);
         this.visemeUtil = new VisemeUtil();
+        this.phonemeUtil = new PhonemeUtil();
     }
 
     render() {
         var phonemeEditorClass = (this.props.isVisible ? "phonemeEditor formGroup" : "hidden"),
-            linkedIconClass = (this.props.isLinked ? "fa fa-link" : "fa fa-chain-broken");
+            linkedIconClass = (this.props.isLinked ? "fa fa-link" : "fa fa-chain-broken"),
+            showFrameNo = this.state.frameNo + 1;
         return (
             <div className={phonemeEditorClass}>
-                <label className="leftLabel" htmlFor="phonemes">Phonemes:<span className={linkedIconClass} /></label>
+                <label className="leftLabel" htmlFor="phonemes">Phonemes:<span className={linkedIconClass} />
+                <br /><br />Frame {showFrameNo}/{this.props.wave.getFrameCount()}</label>
                 <textarea className="phonemeBox" rows="10" cols="100" autoComplete="off" autoCorrect="off" autoCapitalize="off" 
 spellCheck="false" value={ this.props.phonemes } id="phonemes" 
-                    onChange={ this._onPhonemesChange } onKeyUp={ this._onPhonemesKeyDown } onMouseUp={ this._onPhonemesMouseUp } 
+                    onChange={ this._onPhonemesChange } onKeyUp={ this._onPhonemesKeyUp } onMouseUp={ this._onPhonemesMouseUp } 
                     onFocus={ this._onPhonemesFocus } onBlur={ this.onPhonemesBlur } />
             </div>
         );
@@ -32,11 +37,12 @@ spellCheck="false" value={ this.props.phonemes } id="phonemes"
     
     _onPhonemesChange(event) {
         var newValue = event.target.value.toLowerCase();
+        newValue = this.phonemeUtil.normalizePhonemes(newValue);
         this.props.setParentPhonemes(newValue);
         this._setFrameOnCursor(event.target);
     }
     
-    _onPhonemesKeyDown(event) {
+    _onPhonemesKeyUp(event) {
         this.props.setParentIsLinked(false);
         if (event.target.value === "") {
             this.props.setParentIsLinked(true);
@@ -59,18 +65,20 @@ spellCheck="false" value={ this.props.phonemes } id="phonemes"
     }
     
     _setFrameOnCursor(el) {
-        var newCursorPos = this._getCaretPosition(el);
+        var newCursorPos = this._getCaretPosition(el), phonemes = el.value;
         if (newCursorPos === this.state.cursorPos) {
         } else {
-            var frameNo = this._getFrameNoForCursorPosition(this.props.phonemes, newCursorPos), phoneme, viseme, frameRms = null;
+            var frameNo = this.phonemeUtil.getFrameNoAtPos(phonemes, newCursorPos), 
+                phoneme, viseme, frameRms = null;
             if (frameNo < this.props.wave.getFrameCount() - 1) {
                 frameRms = this.props.wave.getFrameRms(frameNo);
                 this.props.wave.playFrame(frameNo);
             }
             this.setState({
+                frameNo: frameNo,
                 cursorPos: newCursorPos
             });
-            phoneme = this._getPhonemeAtPos(this.props.phonemes, newCursorPos);
+            phoneme = this.phonemeUtil.getPhonemeAtPos(phonemes, newCursorPos);
             viseme = this.visemeUtil.getFrameViseme(this.props.visemeType, frameRms, phoneme);
             this.props.setParentViseme(viseme);
         }
@@ -98,54 +106,6 @@ spellCheck="false" value={ this.props.phonemes } id="phonemes"
 
       // Return results
       return iCaretPos;
-    }
-    
-    _getFrameNoForCursorPosition(phonemes, cursorPos) {
-        var frameNo = 0, seekPos = 0;
-        while (seekPos < cursorPos) {
-            var c = phonemes.charAt(seekPos);
-            if (c === ' ' || c === '-') {
-                ++frameNo
-            }
-            ++seekPos;
-        }
-        return frameNo;
-    }
-    
-    _getPhonemeAtPos(str, pos) {
-        var left, right;
-
-        //Scan left until find a phoneme.
-        for (left = pos; left > -1; --left) {
-            if (this._isLetter(str.charAt(left))) {
-                break;
-            }
-        }
-        
-        if (left === -1) {
-            return "-"; //No phoneme found.
-        }
-        
-        //Scan left to find beginning of phoneme.
-        for (; left > -1; --left) {
-            if (!this._isLetter(str.charAt(left))) {
-                break;
-            }
-        }
-        ++left;
-        
-        //Scan right to find end of phoneme.
-        for (right = left + 1; right < str.length - 1; ++right) {
-            if (!this._isLetter(str.charAt(right))) {
-                break;
-            }
-        }
-        
-        return str.substr(left, right-left);
-    }
-    
-    _isLetter(str) {
-        return str.length === 1 && str.match(/[a-z]/i);
     }
 }
 
