@@ -8,7 +8,7 @@ class WaveSelector extends React.Component {
             isLoaded:           false,
             isBusy:             false,
             fileName:           null,
-            currentFrameNo:     0
+            durationSecs:       null,
         };
         this.onFilenameChange = this.onFilenameChange.bind(this);
         this.onChangeFile = this.onChangeFile.bind(this);
@@ -25,8 +25,9 @@ class WaveSelector extends React.Component {
     renderLoaded() {
       return (
           <div className="waveSelector formGroup">
-            <p className="audioFileLabel">Audio File: { this.state.fileName }</p>
-            <button id="changeFile" onClick={ this.onChangeFile }>Change File</button>
+            <div className="audioFileLabel">Audio File: { this.state.fileName } ( {this.state.durationSecs } seconds)
+                <button id="changeFile" className="fa fa-pencil" onClick={ this.onChangeFile } />
+            </div>
           </div>
       );  
     }
@@ -34,8 +35,7 @@ class WaveSelector extends React.Component {
     renderNotLoaded() {
       return (
           <div className="waveSelector formGroup">
-                <p className="audioFileLabel">Audio File:</p>
-                <input type="file" id="waveFile" size="50" onChange={ this.onFilenameChange } />
+                <div className="audioFileLabel">Audio File: <input type="file" id="waveFile" size="50" onChange={ this.onFilenameChange } /></div>
           </div>
       );  
     }
@@ -53,16 +53,21 @@ class WaveSelector extends React.Component {
                 
                 this.props.wave.load(x.files[0]).then(
                     function() {
+                        var secs = Math.ceil(that.props.wave.getDuration());
                         that.setState({
+                            durationSecs: secs,
                             isLoaded: true,
                             isBusy: false
                         });
+                        that.props.parentOnWaveLoaded(true);
                     },
                     function(e) {
                         that.setState({
+                            durationSecs: null,
                             isLoaded: false,
                             isBusy: false
                         });
+                        that.props.parentOnWaveLoaded(false);
                     }
                 );
             }
@@ -74,6 +79,7 @@ class WaveSelector extends React.Component {
         this.setState({
             isLoaded: false
         });
+        that.props.parentOnWaveLoaded(true);
     }
 }
 

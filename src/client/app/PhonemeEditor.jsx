@@ -1,5 +1,4 @@
 import React from 'react';
-import Rita from '../../libs/rita-full.js';
 import VisemeUtil from './VisemeUtil.js';
 
 class PhonemeEditor extends React.Component {
@@ -7,8 +6,6 @@ class PhonemeEditor extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            text: "",
-            phonemes: "",
             cursorPos: -1
         };
         this._onPhonemesChange = this._onPhonemesChange.bind(this);
@@ -16,46 +13,34 @@ class PhonemeEditor extends React.Component {
         this._onPhonemesMouseUp = this._onPhonemesMouseUp.bind(this);
         this._onPhonemesFocus = this._onPhonemesFocus.bind(this);
         this._onPhonemesBlur = this._onPhonemesBlur.bind(this);
-        this._onTextChange = this._onTextChange.bind(this);
         this.visemeUtil = new VisemeUtil();
     }
 
     render() {
+        var phonemeEditorClass = (this.props.isVisible ? "phonemeEditor formGroup" : "hidden"),
+            linkedIconClass = (this.props.isLinked ? "fa fa-link" : "fa fa-chain-broken");
         return (
-            <div className="phonemeEditor formGroup">
-                <label className="leftLabel" htmlFor="text">Text:</label>
-                <input className="textBox" type="text" value={ this.state.text } id="text" onChange={ this._onTextChange } /><br />
-                <label className="leftLabel" htmlFor="phonemes">Phonemes:</label>
+            <div className={phonemeEditorClass}>
+                <label className="leftLabel" htmlFor="phonemes">Phonemes:<span className={linkedIconClass} /></label>
                 <textarea className="phonemeBox" rows="10" cols="100" autoComplete="off" autoCorrect="off" autoCapitalize="off" 
-spellCheck="false" value={ this.state.phonemes } id="phonemes" 
+spellCheck="false" value={ this.props.phonemes } id="phonemes" 
                     onChange={ this._onPhonemesChange } onKeyUp={ this._onPhonemesKeyDown } onMouseUp={ this._onPhonemesMouseUp } 
-                    onFocus={ this._onPhonemesFocus } onBlur={ this.onPhonemesBlue } />
+                    onFocus={ this._onPhonemesFocus } onBlur={ this.onPhonemesBlur } />
             </div>
         );
     }
     
-    _onTextChange(event) {
-        var sourceText = RiTa.stripPunctuation(event.target.value),
-            phonemes = RiTa.getPhonemes(sourceText);
-        phonemes = phonemes.replace(/-/g, ' ');
-        this.setState({
-            text: event.target.value,
-            phonemes: phonemes
-        });
-        
-        this.props.setParentPhonemes(phonemes);
-    }
-    
     _onPhonemesChange(event) {
         var newValue = event.target.value.toLowerCase();
-        this.setState({
-			phonemes: newValue
-		});
-        this.props.setParentPhonemes(phonemes);
+        this.props.setParentPhonemes(newValue);
         this._setFrameOnCursor(event.target);
     }
     
     _onPhonemesKeyDown(event) {
+        this.props.setParentIsLinked(false);
+        if (event.target.value === "") {
+            this.props.setParentIsLinked(true);
+        }
         this._setFrameOnCursor(event.target);
     }
     
@@ -77,7 +62,7 @@ spellCheck="false" value={ this.state.phonemes } id="phonemes"
         var newCursorPos = this._getCaretPosition(el);
         if (newCursorPos === this.state.cursorPos) {
         } else {
-            var frameNo = this._getFrameNoForCursorPosition(this.state.phonemes, newCursorPos), phoneme, viseme, frameRms = null;
+            var frameNo = this._getFrameNoForCursorPosition(this.props.phonemes, newCursorPos), phoneme, viseme, frameRms = null;
             if (frameNo < this.props.wave.getFrameCount() - 1) {
                 frameRms = this.props.wave.getFrameRms(frameNo);
                 this.props.wave.playFrame(frameNo);
@@ -85,7 +70,7 @@ spellCheck="false" value={ this.state.phonemes } id="phonemes"
             this.setState({
                 cursorPos: newCursorPos
             });
-            phoneme = this._getPhonemeAtPos(this.state.phonemes, newCursorPos);
+            phoneme = this._getPhonemeAtPos(this.props.phonemes, newCursorPos);
             viseme = this.visemeUtil.getFrameViseme(this.props.visemeType, frameRms, phoneme);
             this.props.setParentViseme(viseme);
         }
