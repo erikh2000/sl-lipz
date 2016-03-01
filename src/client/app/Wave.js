@@ -118,6 +118,16 @@ class Wave {
         this._play(this.completeBuffer);
     }
     
+    stop() {
+        if (!this.isLoaded) {
+            return;
+        }
+        
+        if (this.bufferSource) {
+            this.bufferSource.stop();
+        }
+    }
+    
     /* Private methods */
     
     _play(audioBuffer) {

@@ -2,6 +2,11 @@
     display: none;
 }
 
+.grayscale {
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+}
+
 .waveSelector {
     padding: 20px;
 }
@@ -9,10 +14,28 @@
 .mouthBox {
     float: right;
     margin-right: 50px;
+    text-align: center;
+    width: 300px;
+    height: 197px;
+    
+    
+    display: table;
 }
 
-.phonemeEditor {
+.viseme {
+    position: absolute;
+    width: 300px;
+    height: 197px;
+    z-index: -1;
+}
 
+.mouthBox .playButton {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    font-size: 124px;
+    opacity: 0.5;
+   
 }
 
 .formGroup {
@@ -51,31 +74,3 @@
     font-size: large;
 }
 
-.visemeBox {
-    
-}
-
-.visemeType {
-
-}
-
-.visemeTypeLabel {
-
-}
-
-.downloadLipz {
-
-}
-
-.lipzFileContent {
-    word-break: break-all;
-    font-family: monospace;
-    color: lightgreen;
-    background-color: black;
-    padding: 10px;
-    margin-top: 5px;
-}
-
-.visemeBox .previewButton {
-    margin-left: 5px;
-}

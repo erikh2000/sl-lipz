@@ -101,7 +101,7 @@ class VisemeUtil {
         //If still in phoneme at the end, add one more frame because there is no non-phoneme character
         //to delimit.
         if (inPhoneme) {
-            viseme = getFrameViseme(visemeType, frameRMS, phoneme);
+            viseme = this.getFrameViseme(visemeType, frameRMS, phoneme);
             ret.push(viseme);
         }
         

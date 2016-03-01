@@ -79,7 +79,7 @@ class WaveSelector extends React.Component {
         this.setState({
             isLoaded: false
         });
-        that.props.parentOnWaveLoaded(true);
+        this.props.parentOnWaveLoaded(false);
     }
 }
 
