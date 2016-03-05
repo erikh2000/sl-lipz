@@ -65,7 +65,7 @@ class PhonemeUtil {
         ++left;
         
         //Scan right to find end of phoneme.
-        for (right = left + 1; right < phonemes.length - 1; ++right) {
+        for (right = left + 1; right < phonemes.length; ++right) {
             if (!this._isLetter(phonemes.charAt(right))) {
                 break;
             }
