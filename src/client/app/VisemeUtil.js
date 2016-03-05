@@ -5,7 +5,7 @@ class VisemeUtil {
     constructor() {
         this.arpabetToToonBoom = new ArpabetToToonBoom();
         this.arpabetToBlair = new ArpabetToBlair();
-        this.rmsQuiet = .00001;
+        this.rmsQuiet = .0001;
         this.rmsPeak = .5;
         this.rmsFirstViseme = "1";
         this.rmsLastViseme = "9";
@@ -53,7 +53,8 @@ class VisemeUtil {
     }
     
     createFrameVisemesForWave(visemeType, wave, phonemes) {
-        var pos, frameNo = -1, inPhoneme = false, isQuietFrame, phoneme, viseme, visemeMap, char, ret = [], frameRMS;
+        var pos, frameNo = -1, inPhoneme = false, isQuietFrame, phoneme, viseme = "-", visemeMap, char, 
+            frameRMS, waveFrameCount = wave.getFrameCount(), ret = [];
         
         if (visemeType === 'rms') {
             return this.createFrameVisemesForWaveUsingRMS(wave);
@@ -98,15 +99,16 @@ class VisemeUtil {
             }
         }
         
-        //If still in phoneme at the end, add one more frame because there is no non-phoneme character
-        //to delimit.
-        if (inPhoneme) {
-            viseme = this.getFrameViseme(visemeType, frameRMS, phoneme);
-            ret.push(viseme);
+        //For any remaining frames in wave that went beyond viseme frames generated from phonemes, continue
+        //the last viseme until RMS goes under quiet threshold. Then continue padding with "-" (resting mouth)
+        while (ret.length < waveFrameCount) {
+            frameRMS = wave.getFrameRms(ret.length);
+            if (frameRMS < this.rmsQuiet) {
+                ret.push("-");
+            } else {
+                ret.push(viseme);
+            }
         }
-        
-        //End on closed mouth.
-        ret.push("-");
         
         return ret;
     }
