@@ -20,7 +20,8 @@ class App extends React.Component {
             phonemes: "",
             arePhonemesLinkedToText: true,
             isWaveLoaded: false,
-            isWavePlaying: false
+            isWavePlaying: false,
+            waveFilename: null
         };
         this.phonemeUtil = new PhonemeUtil();
         this.visemeUtil = new VisemeUtil();
@@ -31,6 +32,9 @@ class App extends React.Component {
         this.onWaveLoaded = this.onWaveLoaded.bind(this);
         this.setArePhonemesLinkedToText = this.setArePhonemesLinkedToText.bind(this);
         this.play = this.play.bind(this);
+        this._onSettingsClick = this._onSettingsClick.bind(this);
+        this._onDownloadClick = this._onDownloadClick.bind(this);
+        this._onClearClick = this._onClearClick.bind(this);
     }
   
     render () {
@@ -43,6 +47,11 @@ class App extends React.Component {
                 <WaveSelector wave={this.state.wave} parentOnWaveLoaded={this.onWaveLoaded} />
                 <TextEditor isVisible={isTextEditorVisible} text={this.state.text} parentSetText={this.setText} />
                 <PhonemeEditor isVisible={isPhonemeEditorVisible} isLinked={this.state.arePhonemesLinkedToText} wave={this.state.wave} visemeType={this.state.visemeType} phonemes={this.state.phonemes} setParentViseme={this.setViseme} setParentPhonemes={this.setPhonemes} setParentIsLinked={this.setArePhonemesLinkedToText} />
+                <div className="formGroup buttonBar">
+                    <button className="settingsButton" onClick={this._onSettingsClick}>Settings...</button>
+                    <button className="clearButton" onClick={this._onClearClick}>Clear</button>
+                    <button className="downloadButton" onClick={this._onDownloadClick}>Download .Lipz</button>
+                </div>
             </div>
         );
     }
@@ -65,9 +74,10 @@ class App extends React.Component {
         });
     }
     
-    onWaveLoaded(isLoaded) {
+    onWaveLoaded(isLoaded, filename) {
         this.setState({
-            isWaveLoaded: isLoaded
+            isWaveLoaded: isLoaded,
+            waveFilename: filename
         });
     }
     
@@ -107,7 +117,6 @@ class App extends React.Component {
             
             //Get viseme for currently playing frame and update mouth.
             var frameNo = that.state.wave.getPlayFrameNo(), viseme;
-            console.log("frame#=" +frameNo);
             if (frameNo < frameVisemes.length) {
                 viseme = frameVisemes[frameNo];
             } else {
@@ -117,6 +126,54 @@ class App extends React.Component {
             
             //Call this function again in a bit.
             setTimeout(onUpdateMouth, 10);
+        }
+    }
+    
+    _onSettingsClick() {
+        //TODO
+    }
+    
+    _onClearClick() {
+        //TODO
+    }
+    
+    _onDownloadClick() {
+        var frameVisemes = this.visemeUtil.createFrameVisemesForWave(this.state.visemeType, this.state.wave, this.state.phonemes).join(""),
+            lipzContent = {
+                fps: 24,
+                "text_en-us": this.state.text,
+                visemeType: this.state.visemeType,
+                visemes: frameVisemes
+            },
+            lipzText = JSON.stringify(lipzContent),
+            filename = this.getLipzFilename(this.state.waveFilename);
+        
+        this.downloadTextAsFile(filename, lipzText);
+    }
+    
+    downloadTextAsFile(filename, text) {
+          var element = document.createElement('a');
+          element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+          element.setAttribute('download', filename);
+
+          element.style.display = 'none';
+          document.body.appendChild(element);
+
+          element.click();
+
+          document.body.removeChild(element);
+    }
+    
+    getLipzFilename(waveFilename) {
+        if (waveFilename && waveFilename.length > 1) {
+            var extensionPos = waveFilename.lastIndexOf(".");
+            if (extensionPos === -1) {
+                return waveFilename + ".lipz";
+            } else {
+                return waveFilename.substring(0, extensionPos) + ".lipz";
+            }
+        } else {
+            return "default.lipz";
         }
     }
 }
