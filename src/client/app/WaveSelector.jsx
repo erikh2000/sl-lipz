@@ -25,7 +25,7 @@ class WaveSelector extends React.Component {
     renderLoaded() {
       return (
           <div className="waveSelector formGroup">
-            <div className="audioFileLabel">Audio File: { this.state.fileName } ( {this.state.durationSecs } seconds)
+            <div className="audioFileLabel">Audio File: { this.state.fileName } ({this.state.durationSecs } seconds)
                 <button id="changeFile" className="fa fa-pencil" onClick={ this.onChangeFile } />
             </div>
           </div>
@@ -59,7 +59,7 @@ class WaveSelector extends React.Component {
                             isLoaded: true,
                             isBusy: false
                         });
-                        that.props.parentOnWaveLoaded(true);
+                        that.props.parentOnWaveLoaded(true, that.state.fileName);
                     },
                     function(e) {
                         that.setState({
