@@ -16,7 +16,7 @@
     margin-right: 50px;
     text-align: center;
     width: 300px;
-    height: 197px;
+    height: 483px;
     
     
     display: table;
@@ -25,7 +25,7 @@
 .viseme {
     position: absolute;
     width: 300px;
-    height: 197px;
+    height: 483px;
     z-index: -1;
 }
 
