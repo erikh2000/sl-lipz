@@ -1,11 +1,11 @@
 import React from 'react';
 
+//TODO--add busy UI handling to avoid changing file while it uploads
 class WaveSelector extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            isLoaded:           false,
             isBusy:             false,
             fileName:           null,
             durationSecs:       null,
@@ -15,7 +15,11 @@ class WaveSelector extends React.Component {
     }
 
     render() {
-        if (this.state.isLoaded) {
+        if (!this.props.isWaveLoaded && this.props.wave.loaded) { //Parent signalled to unload the wave.
+            this.props.wave.clear();
+        } 
+        
+        if (this.props.isWaveLoaded) {
             return this.renderLoaded();
         } else {
             return this.renderNotLoaded();
@@ -44,7 +48,7 @@ class WaveSelector extends React.Component {
         var x = document.getElementById("waveFile"), that = this;
         if ('files' in x) {
             if (x.files.length == 0) {
-                this.setState({isLoaded: false});
+                that.props.parentOnWaveLoaded(false);
             } else {
                 this.setState({
                     isBusy: true,
@@ -56,7 +60,6 @@ class WaveSelector extends React.Component {
                         var secs = Math.ceil(that.props.wave.getDuration());
                         that.setState({
                             durationSecs: secs,
-                            isLoaded: true,
                             isBusy: false
                         });
                         that.props.parentOnWaveLoaded(true, that.state.fileName);
@@ -64,7 +67,6 @@ class WaveSelector extends React.Component {
                     function(e) {
                         that.setState({
                             durationSecs: null,
-                            isLoaded: false,
                             isBusy: false
                         });
                         that.props.parentOnWaveLoaded(false);
@@ -76,9 +78,6 @@ class WaveSelector extends React.Component {
 
     onChangeFile() {
         this.props.wave.clear();
-        this.setState({
-            isLoaded: false
-        });
         this.props.parentOnWaveLoaded(false);
     }
 }
