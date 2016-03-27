@@ -17,6 +17,8 @@ class TextEditor extends React.Component {
             textBoxClass = (this.state.isEditing ? "textBox" : "hidden"), 
             textLabelClass = (this.state.isEditing ? "hidden" : "textLabel");
         
+        console.log(textEditorClass);
+        
         return (
             <div className={ textEditorClass }>
                 <label className="leftLabel" htmlFor="text">Text:</label>
