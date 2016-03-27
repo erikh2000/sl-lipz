@@ -8,21 +8,26 @@ import PhonemeEditor from './PhonemeEditor.jsx';
 import TextEditor from './TextEditor.jsx';
 import MouthBox from './MouthBox.jsx';
 
+function getDefaultState(wave) {
+    return {
+        wave: wave,
+        viseme: null,
+        visemeType: "blair",
+        text: "",
+        phonemes: "",
+        arePhonemesLinkedToText: true,
+        isWaveLoaded: false,
+        isWavePlaying: false,
+        waveFilename: null
+    };
+}
+
 class App extends React.Component {
+
     constructor(props) {
         super(props);
         var wave = new Wave(24, .1);
-        this.state= {
-            wave: wave,
-            viseme: null,
-            visemeType: "blair",
-            text: "",
-            phonemes: "",
-            arePhonemesLinkedToText: true,
-            isWaveLoaded: false,
-            isWavePlaying: false,
-            waveFilename: null
-        };
+        this.state = getDefaultState(wave); 
         this.phonemeUtil = new PhonemeUtil();
         this.visemeUtil = new VisemeUtil();
         this.setViseme = this.setViseme.bind(this);
@@ -44,7 +49,7 @@ class App extends React.Component {
         return (
             <div>
                 <MouthBox isWaveLoaded={this.state.isWaveLoaded} parentPlay={this.play} visemeType={this.state.visemeType} viseme={this.state.viseme} />
-                <WaveSelector wave={this.state.wave} parentOnWaveLoaded={this.onWaveLoaded} />
+                <WaveSelector isWaveLoaded={this.state.isWaveLoaded} wave={this.state.wave} parentOnWaveLoaded={this.onWaveLoaded} />
                 <TextEditor isVisible={isTextEditorVisible} text={this.state.text} parentSetText={this.setText} />
                 <PhonemeEditor isVisible={isPhonemeEditorVisible} isLinked={this.state.arePhonemesLinkedToText} wave={this.state.wave} visemeType={this.state.visemeType} phonemes={this.state.phonemes} setParentViseme={this.setViseme} setParentPhonemes={this.setPhonemes} setParentIsLinked={this.setArePhonemesLinkedToText} />
                 <div className="formGroup buttonBar">
@@ -134,7 +139,13 @@ class App extends React.Component {
     }
     
     _onClearClick() {
-        //TODO
+        //Clear wave file selection--TODO
+        var defaultState = getDefaultState(this.state.wave);
+        console.log(defaultState);
+        this.state.wave.clear();
+        this.setState(
+            defaultState
+        );
     }
     
     _onDownloadClick() {
