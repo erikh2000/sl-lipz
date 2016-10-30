@@ -21,7 +21,7 @@ class TextEditor extends React.Component {
         
         return (
             <div className={ textEditorClass }>
-                <label className="leftLabel" htmlFor="text">Text:</label>
+                <label className="leftLabel">Text:</label>
                 <div className={ textLabelClass } >{ this.props.text } <button id="changeFile" className="fa fa-pencil" onClick={ this._onEditClick } /></div>
                 <textarea id="theTextBox" className={ textBoxClass } rows="10" cols="100" value={ this.props.text } onChange={ this._onTextChange } onBlur={ this._onTextBlur } />
             </div>
