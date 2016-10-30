@@ -37,7 +37,6 @@ class App extends React.Component {
         this.onWaveLoaded = this.onWaveLoaded.bind(this);
         this.setArePhonemesLinkedToText = this.setArePhonemesLinkedToText.bind(this);
         this.play = this.play.bind(this);
-        this._onSettingsClick = this._onSettingsClick.bind(this);
         this._onDownloadClick = this._onDownloadClick.bind(this);
         this._onClearClick = this._onClearClick.bind(this);
     }
@@ -53,7 +52,6 @@ class App extends React.Component {
                 <TextEditor isVisible={isTextEditorVisible} text={this.state.text} parentSetText={this.setText} />
                 <PhonemeEditor isVisible={isPhonemeEditorVisible} isLinked={this.state.arePhonemesLinkedToText} wave={this.state.wave} visemeType={this.state.visemeType} phonemes={this.state.phonemes} setParentViseme={this.setViseme} setParentPhonemes={this.setPhonemes} setParentIsLinked={this.setArePhonemesLinkedToText} />
                 <div className="formGroup buttonBar">
-                    <button className="settingsButton" onClick={this._onSettingsClick}>Settings...</button>
                     <button className="clearButton" onClick={this._onClearClick}>Clear</button>
                     <button className="downloadButton" onClick={this._onDownloadClick}>Download .Lipz</button>
                 </div>
@@ -132,10 +130,6 @@ class App extends React.Component {
             //Call this function again in a bit.
             setTimeout(onUpdateMouth, 10);
         }
-    }
-    
-    _onSettingsClick() {
-        //TODO
     }
     
     _onClearClick() {
