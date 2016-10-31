@@ -1,4 +1,19 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import * as Actions from './Actions.js';
+
+function mapStateToProps(state) {
+    return {
+        text: state.text
+    };
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators(Actions, dispatch)
+    };
+}
 
 class TextEditor extends React.Component {
     
@@ -35,7 +50,7 @@ class TextEditor extends React.Component {
     }
     
     _onTextChange(event) {
-        this.props.parentSetText(event.target.value);
+        this.props.actions.setText(event.target.value);
     }
     
     _onTextBlur() {

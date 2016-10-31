@@ -1,5 +1,6 @@
 import React from 'react';
 import {render} from 'react-dom';
+import {Provider} from 'react-redux';
 import PhonemeUtil from './PhonemeUtil.js';
 import VisemeUtil from './VisemeUtil.js';
 import Wave from './Wave.js';
@@ -7,6 +8,7 @@ import WaveSelector from './WaveSelector.jsx';
 import PhonemeEditor from './PhonemeEditor.jsx';
 import TextEditor from './TextEditor.jsx';
 import MouthBox from './MouthBox.jsx';
+import configureStore from './Store.js';
 
 function getDefaultState(wave) {
     return {
@@ -27,6 +29,7 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         var wave = new Wave(24, .1);
+        this.store = configureStore();
         this.state = getDefaultState(wave); 
         this.phonemeUtil = new PhonemeUtil();
         this.visemeUtil = new VisemeUtil();
@@ -46,16 +49,18 @@ class App extends React.Component {
         var isPhonemeEditorVisible = (this.state.visemeType != "rms") && isTextEditorVisible && this.state.text !== "";
         
         return (
-            <div>
-                <MouthBox isWaveLoaded={this.state.isWaveLoaded} parentPlay={this.play} visemeType={this.state.visemeType} viseme={this.state.viseme} />
-                <WaveSelector isWaveLoaded={this.state.isWaveLoaded} wave={this.state.wave} parentOnWaveLoaded={this.onWaveLoaded} />
-                <TextEditor isVisible={isTextEditorVisible} text={this.state.text} parentSetText={this.setText} />
-                <PhonemeEditor isVisible={isPhonemeEditorVisible} isLinked={this.state.arePhonemesLinkedToText} wave={this.state.wave} visemeType={this.state.visemeType} phonemes={this.state.phonemes} setParentViseme={this.setViseme} setParentPhonemes={this.setPhonemes} setParentIsLinked={this.setArePhonemesLinkedToText} />
-                <div className="formGroup buttonBar">
-                    <button className="clearButton" onClick={this._onClearClick}>Clear</button>
-                    <button className="downloadButton" onClick={this._onDownloadClick}>Download .Lipz</button>
+            <Provider store={this.store}>
+                <div>
+                    <MouthBox isWaveLoaded={this.state.isWaveLoaded} parentPlay={this.play} visemeType={this.state.visemeType} viseme={this.state.viseme} />
+                    <WaveSelector isWaveLoaded={this.state.isWaveLoaded} wave={this.state.wave} parentOnWaveLoaded={this.onWaveLoaded} />
+                    <TextEditor isVisible={isTextEditorVisible} />
+                    <PhonemeEditor isVisible={isPhonemeEditorVisible} wave={this.state.wave} visemeType={this.state.visemeType} setParentViseme={this.setViseme} />
+                    <div className="formGroup buttonBar">
+                        <button className="clearButton" onClick={this._onClearClick}>Clear</button>
+                        <button className="downloadButton" onClick={this._onDownloadClick}>Download .Lipz</button>
+                    </div>
                 </div>
-            </div>
+            </Provider>
         );
     }
     

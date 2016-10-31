@@ -1,6 +1,22 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import VisemeUtil from './VisemeUtil.js';
 import PhonemeUtil from './PhonemeUtil.js';
+import * as Actions from './Actions.js';
+
+function mapStateToProps(state) {
+    return {
+        phonemes:                   state.phonemes,
+        arePhonemesLinkedToText:    state.arePhonemesLinkedToText
+    };
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators(Actions, dispatch)
+    };
+}
 
 class PhonemeEditor extends React.Component {
     
@@ -21,7 +37,7 @@ class PhonemeEditor extends React.Component {
 
     render() {
         var phonemeEditorClass = (this.props.isVisible ? "phonemeEditor formGroup" : "hidden"),
-            linkedIconClass = (this.props.isLinked ? "fa fa-link" : "fa fa-chain-broken"),
+            linkedIconClass = (this.props.arePhonemesLinkedToText ? "fa fa-link" : "fa fa-chain-broken"),
             showFrameNo = this.state.frameNo + 1;
         return (
             <div className={phonemeEditorClass}>
@@ -38,14 +54,14 @@ spellCheck="false" value={ this.props.phonemes } id="phonemes"
     _onPhonemesChange(event) {
         var newValue = event.target.value.toLowerCase();
         newValue = this.phonemeUtil.normalizePhonemes(newValue);
-        this.props.setParentPhonemes(newValue);
+        this.props.actions.setPhonemes(newValue);
         this._setFrameOnCursor(event.target);
     }
     
     _onPhonemesKeyUp(event) {
-        this.props.setParentIsLinked(false);
+        this.props.actions.setArePhonemesLinkedToText(false);
         if (event.target.value === "") {
-            this.props.setParentIsLinked(true);
+            this.props.actions.setArePhonemesLinkedToText(true);
         }
         this._setFrameOnCursor(event.target);
     }
@@ -109,4 +125,4 @@ spellCheck="false" value={ this.props.phonemes } id="phonemes"
     }
 }
 
-export default PhonemeEditor;
+export default connect(mapStateToProps, mapDispatchToProps)(PhonemeEditor);

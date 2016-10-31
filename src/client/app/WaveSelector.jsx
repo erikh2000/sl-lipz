@@ -1,4 +1,16 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+function mapStateToProps(state) {
+    return {
+    };
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+    };
+}
 
 //TODO--add busy UI handling to avoid changing file while it uploads
 class WaveSelector extends React.Component {
@@ -84,4 +96,4 @@ class WaveSelector extends React.Component {
     }
 }
 
-export default WaveSelector;
+export default connect(mapStateToProps, mapDispatchToProps)(WaveSelector);
